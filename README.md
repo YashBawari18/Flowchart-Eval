@@ -1,243 +1,101 @@
-# AI-Assisted Flowchart Evaluation Prototype
+# Flowchart AI Evaluator 🤖
 
-## Overview
+![System Architecture](./docs/system_architecture.png)
 
-This is a **research prototype** for AI-assisted evaluation of student-drawn flowcharts. The system is designed as a **feasibility study** for academic research, demonstrating the potential of automated flowchart analysis while explicitly acknowledging its limitations.
+An **AI-powered web application** that automatically evaluates flowchart images. Upload any flowchart, and the system uses computer vision to detect shapes, OCR to read text inside blocks, and graph algorithms to generate an intelligent score with detailed feedback.
 
-## Problem Statement
+## 🎯 Features
 
-Manual evaluation of student flowcharts is time-consuming and subjective. This prototype explores whether AI can assist teachers by:
-- Extracting structure and logic from flowchart images
-- Converting flowcharts to pseudo-algorithms
-- Comparing student work with model solutions
-- Providing partial, explainable marks
+- **Universal Analysis**: Works with any flowchart image (PNG, JPG, JPEG)
+- **Computer Vision**: Automatically detects start/end nodes, process blocks, and decision diamonds
+- **Text Recognition**: Uses **Pytesseract OCR** to read and understand text inside flowchart blocks
+- **Intelligent Scoring**: Provides a score (0-100) based on structure, logic, and content
+- **Modern Web Interface**: Clean, responsive UI with real-time feedback and glassmorphism design
 
-## System Architecture
+## 🏗️ System Architecture
 
-```
-┌─────────────┐
-│ Image Input │
-└──────┬──────┘
-       │
-┌──────▼──────────────┐
-│ Image Processing    │  ← Shape & Arrow Detection
-└──────┬──────────────┘
-       │
-┌──────▼──────────────┐
-│ Text Extraction     │  ← OCR & Normalization
-└──────┬──────────────┘
-       │
-┌──────▼──────────────┐
-│ Graph Construction  │  ← Directed Graph
-└──────┬──────────────┘
-       │
-┌──────▼──────────────┐
-│ Algorithm Gen       │  ← Pseudo-code
-└──────┬──────────────┘
-       │
-┌──────▼──────────────┐
-│ Evaluation          │  ← Semantic Comparison
-└──────┬──────────────┘
-       │
-┌──────▼──────────────┐
-│ Marks & Feedback    │
-└─────────────────────┘
-```
+The project follows a modular pipeline:
 
-## Features
+1.  **Image Processing** (`OpenCV`): Detects shapes and arrows
+2.  **Text Extraction** (`Pytesseract`): Reads text from blocks
+3.  **Graph Construction** (`NetworkX`): Builds a directed graph representation
+4.  **Evaluation** (`scikit-learn`): Semantically compares text and validates logic
+5.  **Web Interface** (`Flask`): Displays results and visualization
 
-### 1. Image Processing Layer (`image_processor.py`)
-- Detects flowchart symbols: Start/End (Oval), Process (Rectangle), Decision (Diamond)
-- Uses heuristic-based shape classification
-- Detects flow arrows using Hough Transform
-
-### 2. Text Extraction Layer (`text_extractor.py`)
-- OCR using Tesseract
-- Text normalization (lowercasing, noise removal)
-- Synonym mapping for common variations
-
-### 3. Structural Representation (`graph_builder.py`)
-- Converts flowchart to directed graph (NetworkX)
-- Validates basic properties (start node, end node, DAG)
-
-### 4. Algorithm Generation (`evaluator.py`)
-- DFS traversal to generate pseudo-code
-- Step-by-step algorithm extraction
-
-### 5. Evaluation & Comparison (`evaluator.py`)
-- TF-IDF + Cosine Similarity for semantic matching
-- Partial marking based on step similarity
-- Explainable feedback for each step
-
-## Installation
+## 🚀 Installation
 
 ### Prerequisites
 - Python 3.8+
-- Tesseract OCR (optional, system uses mock OCR by default)
+- [Tesseract OCR](https://github.com/tesseract-ocr/tesseract) installed on your system
 
-### Install Tesseract (Optional)
-```bash
-# macOS
-brew install tesseract
+### Steps
 
-# Ubuntu/Debian
-sudo apt-get install tesseract-ocr
+1.  **Clone the repository**
+    ```bash
+    git clone https://github.com/YashBawari18/Flowchart-Eval.git
+    cd Flowchart-Eval
+    ```
 
-# Windows
-# Download from: https://github.com/UB-Mannheim/tesseract/wiki
-```
+2.  **Install Dependencies**
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-### Install Python Dependencies
-```bash
-pip3 install -r requirements.txt
-```
+3.  **Install Tesseract OCR**
+    - **macOS**: `brew install tesseract`
+    - **Windows**: Download [installer](https://github.com/UB-Mannheim/tesseract/wiki)
+    - **Linux**: `sudo apt-get install tesseract-ocr`
 
-## Usage
+## 💻 Usage
 
-### 1. Generate Sample Flowchart (Optional)
-```bash
-python3 src/generate_test_data.py
-```
+1.  **Start the Server**
+    ```bash
+    python app.py
+    ```
 
-### 2. Run Evaluation
+2.  **Open Web Interface**
+    Open your browser and navigate to: `http://localhost:5001`
 
-#### **Interactive Mode (Recommended)** 🆕
-```bash
-python3 src/main_interactive.py
-```
-This will prompt you to:
-- Choose a flowchart image (sample or custom)
-- Enter the model algorithm (correct answer)
-- Get evaluation results
+3.  **Upload & Analyze**
+    - Drag and drop a flowchart image
+    - Click "Analyze Flowchart"
+    - View the generated algorithm, score, and feedback
 
-#### **Automated Mode**
-```bash
-python3 src/main.py
-```
-Uses hardcoded sample flowchart and model algorithm.
-
-### 3. Debug Shape Detection
-```bash
-python3 src/debug_shapes.py
-```
-
-## Example Output
-
-```
---- AI Flowchart Evaluation Prototype ---
-Processing: data/samples/sample_flowchart.png
-Detected 4 shapes and 39 arrows.
-Built graph with 4 nodes and 3 edges.
-
---- RESULTS ---
-Generated Algorithm:
-  - Start/End: Start
-  - Process: Input X
-  - Decision: If X > 10
-  - Start/End: Stop
-
-Score: 50.0/100
-Feedback:
-  [x] Step 1 Correct: 'start' found.
-  [x] Step 2 Missing: 'input value' not found.
-  [x] Step 3 Missing: 'check if x is greater than 10' not found.
-  [x] Step 4 Partial: 'stop' partially addressed.
-```
-
-## Project Structure
+## 📂 Project Structure
 
 ```
 Flowchart-Eval/
+├── app.py                 # Flask Data backend
 ├── src/
-│   ├── image_processor.py      # Shape & arrow detection
-│   ├── text_extractor.py       # OCR & normalization
-│   ├── graph_builder.py        # Graph construction
-│   ├── evaluator.py            # Pseudo-code generation & evaluation
-│   ├── main.py                 # Main integration script
-│   ├── generate_test_data.py   # Sample flowchart generator
-│   └── debug_shapes.py         # Debug visualization
-├── data/
-│   └── samples/                # Sample flowcharts
-├── requirements.txt            # Python dependencies
-└── README.md                   # This file
+│   ├── image_processor.py # OpenCV shape detection
+│   ├── text_extractor.py  # OCR text extraction
+│   ├── graph_builder.py   # Graph algorithms
+│   └── evaluator.py       # Scoring logic
+├── static/                # Frontend assets (HTML/CSS/JS)
+├── data/uploads/          # Temp storage for uploads
+└── requirements.txt       # Python dependencies
 ```
 
-## Limitations & Known Issues
+## 🔍 How It Works
 
-### 1. Shape Detection
-- **Heuristic-based**: Uses simple contour approximation, not deep learning
-- **Clean images only**: Works best with digital/clean drawings
-- **Limited symbols**: Only Start/End, Process, Decision
-- **No loop detection**: Cannot handle complex loop structures
+1.  **Shape Detection**: Identify rectangles (processes), diamonds (decisions), and ovals (start/end).
+2.  **Text Extraction**: Extract text from each shape's bounding box.
+3.  **Graph Building**: Link shapes based on spatial proximity and arrows.
+4.  **Scoring**:
+    - **Structural**: Checks for Start/End nodes, valid connections.
+    - **Content**: Compares textual content using TF-IDF similarity.
+    - **Logic**: Validates flow (e.g., decision blocks must have branches).
 
-### 2. OCR Accuracy
-- **Handwriting**: Poor performance on handwritten text
-- **Requires Tesseract**: Mock OCR used by default for demo
-- **No context**: Cannot infer meaning from illegible text
+## ⚠️ Limitations
 
-### 3. Graph Construction
-- **Simple heuristics**: Uses vertical proximity, not true arrow following
-- **No validation**: Doesn't check for flowchart correctness
-- **Linear flows only**: Complex branching may fail
+- **Handwriting**: Accuracy depends on handwriting clarity.
+- **Complex Arrows**: Curved or crossing arrows may occasionally be misread.
+- **Language**: Optimized for English text.
 
-### 4. Evaluation
-- **Semantic matching**: TF-IDF is basic, misses semantic equivalence
-- **No partial credit logic**: Cannot recognize equivalent but differently worded steps
-- **Fixed model**: Requires exact model algorithm format
+## 🤝 Contributing
 
-### 5. General
-- **Research prototype**: Not production-ready
-- **No error handling**: Limited exception handling
-- **No UI**: Command-line only
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-## Future Research Directions
+## 📜 License
 
-1. **Deep Learning for Shape Detection**
-   - Train YOLO/Faster R-CNN on flowchart datasets
-   - Handle hand-drawn symbols more robustly
-
-2. **Advanced OCR**
-   - Fine-tune deep OCR models (TrOCR, PaddleOCR)
-   - Context-aware text correction
-
-3. **Semantic Understanding**
-   - Use transformer models (BERT, GPT) for semantic comparison
-   - Recognize equivalent logic expressed differently
-
-4. **Complex Flow Handling**
-   - Detect and evaluate loops (while, for)
-   - Handle nested conditions
-
-5. **Explainable AI**
-   - Visualize differences between student and model
-   - Provide actionable feedback for improvement
-
-6. **Dataset Creation**
-   - Collect real student flowcharts
-   - Annotate for supervised learning
-
-## Research Framing
-
-This prototype is designed for **academic research** and should be presented as:
-- A **feasibility study** exploring AI-assisted flowchart evaluation
-- A **modular framework** for future research
-- An **explainable system** prioritizing transparency over accuracy
-- A **teacher assistance tool**, not a replacement for human grading
-
-## Citation
-
-If you use this prototype in your research, please cite:
-
-```
-[Your Research Paper]
-AI-Assisted Evaluation of Student Flowcharts: A Feasibility Study
-[Year]
-```
-
-## License
-
-This is a research prototype. Please consult your institution's policies for usage and distribution.
-
-## Contact
-
-For questions or collaboration, please contact [Your Email/Institution].
+This project is open source and available under the [MIT License](LICENSE).
