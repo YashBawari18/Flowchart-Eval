@@ -117,7 +117,7 @@ async function analyzeFlowchart() {
         console.log('Sending request to analyze...');
 
         // Send request to backend
-        const response = await fetch('http://localhost:5001/analyze', {
+        const response = await fetch('/analyze', {
             method: 'POST',
             body: formData
         });
