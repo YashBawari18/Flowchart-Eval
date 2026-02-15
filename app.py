@@ -58,26 +58,31 @@ def analyze_flowchart():
         shapes = processor.detect_shapes()
         arrows = processor.detect_arrows()
         
-        # 2. Text Extraction (using mock OCR for now)
-        extractor = TextExtractor()
-        for shape in shapes:
-            # Mock OCR based on shape type (since real OCR may not work well)
-            if shape['type'] == 'Start/End':
-                shape['text'] = 'Start' if shape['bbox'][1] < 200 else 'Stop'
-            elif shape['type'] == 'Process':
-                shape['text'] = 'Process Step'
-            elif shape['type'] == 'Decision':
-                shape['text'] = 'Decision'
-            else:
-                shape['text'] = ''
+        # 2. Text Extraction (Real + Fallback)
+        extractor = TextExtractor() # Tesseract check happens internally
+        
+        # Sort shapes top-to-bottom to give logical indices
+        shapes.sort(key=lambda s: s['bbox'][1])
+        
+        # Determine image dimensions for graph builder
+        img = cv2.imread(filepath)
+        h, w = img.shape[:2]
+        
+        for i, shape in enumerate(shapes):
+            # Extract real text or generate robust fallback
+            shape['text'] = extractor.extract_text(
+                img, 
+                shape['bbox'], 
+                shape_type=shape['type'], 
+                index=i+1
+            )
         
         # 3. Build graph
         builder = GraphBuilder()
-        sorted_shapes = sorted(shapes, key=lambda s: s['bbox'][1])  # Sort by Y position
-        for i in range(len(sorted_shapes) - 1):
-            builder.graph.add_node(i, **sorted_shapes[i])
-            builder.graph.add_node(i+1, **sorted_shapes[i+1])
-            builder.graph.add_edge(i, i+1)
+        builder.set_image_dimensions(w, h)
+        
+        # Build graph using spatial heuristic
+        builder.build_graph(shapes, arrows)
         
         # Validate graph
         is_valid = builder.graph.number_of_nodes() > 0
