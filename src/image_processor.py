@@ -17,19 +17,21 @@ class ImageProcessor:
     def preprocess(self):
         """
         Adaptive preprocessing to handle different lighting conditions and image styles.
+        Optimized for hand-drawn lines (wobbly, potential gaps).
         """
         # 1. Adaptive Thresholding
-        # Use adaptive thresholding locally to handle shadows or uneven lighting
         thresh = cv2.adaptiveThreshold(
             self.gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
             cv2.THRESH_BINARY_INV, 11, 2
         )
         
         # 2. Morphological Operations
-        # Remove small noise (opening) and close gaps (closing)
+        # Dilate heavily to connect broken hand-drawn lines
         kernel = np.ones((3,3), np.uint8)
-        opening = cv2.morphologyEx(thresh, cv2.MORPH_OPEN, kernel, iterations=1)
-        closing = cv2.morphologyEx(opening, cv2.MORPH_CLOSE, kernel, iterations=1)
+        # Dilate first to connect gaps
+        dilated = cv2.dilate(thresh, kernel, iterations=1)
+        # Then close to fill small holes
+        closing = cv2.morphologyEx(dilated, cv2.MORPH_CLOSE, kernel, iterations=2)
         
         return closing
 
@@ -57,11 +59,11 @@ class ImageProcessor:
             
             # Check hierarchy: We want shapes that don't have parents (outermost) 
             # OR shapes whose parents are the image border. 
-            # hierarchy format: [Next, Previous, First_Child, Parent]
-            # This is a simple heuristic; for complex diagrams, we might need more advanced tree analysis.
             
             peri = cv2.arcLength(cnt, True)
-            approx = cv2.approxPolyDP(cnt, 0.03 * peri, True)
+            # Relaxed epsilon for hand-drawn (0.04 instead of 0.02-0.03)
+            # This allows more "wobble" to still be seen as a straight line
+            approx = cv2.approxPolyDP(cnt, 0.04 * peri, True)
             num_vertices = len(approx)
             x, y, w, h = cv2.boundingRect(approx)
             

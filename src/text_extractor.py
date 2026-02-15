@@ -50,7 +50,17 @@ class TextExtractor:
                 
                 _, thresh_roi = cv2.threshold(gray_roi, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
     
+                # 1. Try standard OCR first (Best for digital/clean text)
                 text = pytesseract.image_to_string(thresh_roi, config='--psm 6').strip()
+                
+                # 2. If valid text not found, try enhancements for handwriting
+                # (Thickening + Sparse Text Mode)
+                if not text or len(text) < 2:
+                    kernel = np.ones((2,2), np.uint8)
+                    # Erosion thickens black text on white background
+                    eroded = cv2.erode(thresh_roi, kernel, iterations=1)
+                    text = pytesseract.image_to_string(eroded, config='--psm 11').strip()
+                
                 text = self.normalize_text(text)
                 
             except Exception as e:
