@@ -537,3 +537,11 @@ body {
 svg defs {
     position: absolute;
 }
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 2rem 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-top: auto;
+}
