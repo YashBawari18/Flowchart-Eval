@@ -62,8 +62,12 @@ class TextExtractor:
             # Generate unique identifier based on type and index
             # This ensures DIFFERENT images get DIFFERENT content structure naturally
             # and the same image gets consistent results.
-            if shape_type == "Start/End":
-                text = "Start" if index == 0 else "End"
+            
+            # Heuristic: The first node (index 1) is almost always "Start"
+            if index == 1:
+                text = "Start"
+            elif shape_type == "Start/End":
+                text = "End" # If it's not the first one, it's likely the End node
             elif shape_type == "Decision":
                 text = f"Check condition {index}"
             elif shape_type == "Process":

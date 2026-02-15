@@ -110,7 +110,23 @@ def analyze_flowchart():
         score = 0
         
         # Check for start node
-        has_start = any(s['type'] == 'Start/End' and 'start' in s.get('text', '').lower() for s in shapes)
+        # Logic: 
+        # 1. Type is 'Start/End' AND text contains starty words
+        # 2. OR simply if the first node is 'Start/End' (from our reclassification/fallback)
+        start_keywords = ['start', 'begin', 'entry']
+        
+        has_start = False
+        for s in shapes:
+            text_lower = s.get('text', '').lower()
+            if s['type'] == 'Start/End':
+                 if any(k in text_lower for k in start_keywords):
+                     has_start = True
+                     break
+                 # Heuristic: If it's the very first shape/node, assume it's Start
+                 if shapes.index(s) == 0:
+                     has_start = True
+                     break
+        
         if has_start:
             feedback.append("✓ Flowchart has a proper START node")
             score += 15
@@ -118,7 +134,8 @@ def analyze_flowchart():
             feedback.append("✗ Missing START node - flowcharts should begin with a start symbol")
         
         # Check for end node
-        has_end = any(s['type'] == 'Start/End' and any(word in s.get('text', '').lower() for word in ['end', 'stop', 'exit']) for s in shapes)
+        end_keywords = ['end', 'stop', 'exit', 'finish']
+        has_end = any(s['type'] == 'Start/End' and any(k in s.get('text', '').lower() for k in end_keywords) for s in shapes)
         if has_end:
             feedback.append("✓ Flowchart has a proper END node")
             score += 15
