@@ -74,11 +74,12 @@ class ImageProcessor:
                 bbox_area = w * h
                 fill_ratio = shape_area / bbox_area if bbox_area > 0 else 0
                 
-                # Diamond (Decision) has ~0.5 fill ratio, Rectangle (Process) has ~1.0
-                if fill_ratio < 0.8: 
+                if fill_ratio < 0.65:
                     shape_type = "Decision"
+                elif fill_ratio < 0.95:
+                    shape_type = "Start/End" # Rounded Rect / Oval
                 else:
-                    shape_type = "Process"
+                    shape_type = "Process" # Rectangle
             elif num_vertices > 4:
                 # Likely an ellipse/oval/rounded rect
                 shape_type = "Start/End"

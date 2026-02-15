@@ -76,6 +76,16 @@ def analyze_flowchart():
                 shape_type=shape['type'], 
                 index=i+1
             )
+            
+            # Reclassify based on text content
+            # This fixes the issue where a Start node drawn as a rectangle is classified as 'Process'
+            text_lower = shape['text'].lower()
+            if 'start' in text_lower or 'begin' in text_lower:
+                shape['type'] = 'Start/End'
+            elif 'end' in text_lower or 'stop' in text_lower:
+                shape['type'] = 'Start/End'
+            elif 'if' in text_lower or '?' in text_lower:
+                shape['type'] = 'Decision'
         
         # 3. Build graph
         builder = GraphBuilder()
