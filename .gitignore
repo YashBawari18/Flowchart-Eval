@@ -47,3 +47,8 @@ data/uploads/*
 
 # Logs
 *.log
+
+# Temporary test/debug files
+debug_*.py
+debug_*.png
+data/samples/unique_test.png
