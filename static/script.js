@@ -186,7 +186,7 @@ function displayResults(data) {
 
     setTimeout(() => {
         document.getElementById('scoreRing').style.strokeDashoffset = offset;
-    }, 100);
+    }, 50);
 
     // Update stats
     document.getElementById('shapesCount').textContent = data.shapes_detected;
